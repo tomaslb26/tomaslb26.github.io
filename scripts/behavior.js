@@ -8,6 +8,8 @@ var selectedFourthItem = "sandstone";
 var selectedFifthItem = "diamond_ore";
 var allBlocks;
 var allBlocksConverted;
+var allCustomStats;
+var allCustomStatsConverted;
 var selectedStat = "mob_kills"
 var selectedPlayer = "NevQ"
 var update = false;
@@ -28,10 +30,32 @@ function init() {
     d3.csv("data/custom_stats.csv")
     .then((data) => {
       dataset2 = data
+      getStats()
+      createSelectStat()
       BarChart()
     })
 
   }
+
+function getStats(){
+  data = dataset2.filter(function(d){
+    if(d.username==selectedPlayer){
+      return d;
+    }
+  })
+  array = Object.keys(data[0])
+  array.shift()
+  array.shift()
+  array = array.map((i) => String(i)).sort()
+  array.sort()
+  allCustomStats = [...array]
+  for(i=0;i<array.length;i++){
+    str = String(array[i])
+    str =  str.charAt(0).toUpperCase() + str.slice(1)
+    array[i] = str.replace(/_/g, ' ')
+  }
+  allCustomStatsConverted = [...array]
+}
 
 function createCircles(){
   const circle1 = d3.select("div#circle1").append("svg")
@@ -97,6 +121,25 @@ function selectPlayer(){
       PieChart()
     })
   d3.select("#selectPlayer").property("value",selectedPlayer)
+}
+
+function createSelectStat(){
+  first = allCustomStats.indexOf(selectedStat)
+  d3.select("#selectStat")
+  .selectAll('myOptions')
+  .data(allCustomStatsConverted)
+  .enter()
+  .append('option')
+  .text(function (d) { return d; }) // text showed in the menu
+  .attr("value", function (d) { return d; }) // corresponding value returned by the button
+
+  d3.select("#selectStat").on("change", function(d) {
+    // recover the option that has been chosen
+    selectedStat = d3.select(this).property("value")
+    selectedStat = allCustomStats[allCustomStatsConverted.indexOf(selectedStat)]
+    BarChart()
+  })
+  d3.select("#selectStat").property("value",allCustomStatsConverted[first])
 }
 
 function createSelects(){
@@ -244,7 +287,7 @@ function PieChart(){
 
   arc.append("path")
   .attr("d", path)
-  .attr("fill", function(d) { return ordScale(d.data.name); }) 
+  .attr("fill", function(d) { return ordScale(d.data.name); })
   .style("stroke-width", 1)
   .style("stroke","white") 
   .on("mouseover",handleMouseOver)
@@ -312,21 +355,27 @@ function PieChart(){
 }
 
 function BarChart(){
+  if(update==true){
+    d3.select("div#barChart").select("svg").remove();
+  }
+
   var new_data = dataset2.map(function(d) {
     return {
       username: String(d.username),
       selectedStat: Number(d[selectedStat])
     }
   });
+
   new_data.sort(function(a, b){
     var keyA = a.selectedStat,
         keyB = b.selectedStat;
-    // Compare the 2 dates
     if(keyA < keyB) return 1;
     if(keyA > keyB) return -1;
     return 0;
   })
   new_data = new_data.slice(0,10)
+
+  console.log(new_data)
 
   var margin = {top: 20, right: 50, bottom: 20, left: 70},
   width = 650,
@@ -355,21 +404,59 @@ function BarChart(){
 
   yAxis = (g) => g
   .attr("transform", `translate(${margin.left},0)`)
-  .call(d3.axisLeft(y).tickFormat((y) => y/1000 + "k").tickSizeOuter(0)).append("text")
+  .call(d3.axisLeft(y).tickFormat(function(y){
+    if(y>=1000000){
+      return y/1000000 + "M"
+    }
+    else if(y > 1000){
+      return y/1000 + "k"
+    }
+    else{
+      return y
+    }
+  }).tickSizeOuter(0)).append("text")
   .attr("class", "y label")
   .attr("text-anchor", "end")
   .attr("y", -60)
   .attr("dy", ".75em")
   .attr("transform", "rotate(-90)")
-  .text(selectedStat)
-  .style("font-size", "14px")
-  .style("fill","#E03E33")
+  .text(allCustomStatsConverted[allCustomStats.indexOf(selectedStat)])
+  .style("font-size", "18px")
+  .style("fill","white")
+  .style("stroke-width", 0.2)
+  .style("stroke","#E03E33") 
 
   const svg = d3
   .select("div#barChart")
   .append("svg")
   .attr("width", width)
   .attr("height", height);
+
+  var defs = svg.append("defs");
+
+  var filter = defs.append("filter")
+        .attr("id", "drop-shadow")
+        .attr("height", "150%")
+        .attr("width", "200%");
+
+    filter.append("feGaussianBlur")
+        .attr("in", "SourceAlpha")
+        .attr("stdDeviation", 5)
+        .attr("result", "blur");
+
+    filter.append("feOffset")
+        .attr("in", "blur")
+        .attr("dx", 5)
+        .attr("dy", 2)
+        .attr("result", "offsetBlur");
+
+    var feMerge = filter.append("feMerge");
+
+    feMerge.append("feMergeNode")
+        .attr("in", "offsetBlur");
+    feMerge.append("feMergeNode")
+        .attr("in", "SourceGraphic");
+        
 
   svg.append("g").attr("class","XAxis").call(xAxis);
   svg.append("g").attr("class","YAxis").call(yAxis);
@@ -382,8 +469,23 @@ function BarChart(){
   .join("rect")
   .attr("x", d => x(d.username))
   .attr("y", d => y(d.selectedStat))
+  .style("filter", "url(#drop-shadow)")
   .attr("height", d => y(0) - y(d.selectedStat))
+  .style("stroke-width", 0.2)
+  .style("stroke","white") 
   .transition()
   .duration(800)
   .attr("width", x.bandwidth());
+
+  var texts = svg.append("g").selectAll(".myTexts")
+    .data(new_data)
+    .enter()
+    .append("text");
+  
+   texts.attr("x", function(d,i){ return x(d.username)+2})
+  .attr("y", function(d,i){
+    new_y = y(d.selectedStat)-5 
+    return new_y})
+  .text(function(d){ return d.username})
+
 }

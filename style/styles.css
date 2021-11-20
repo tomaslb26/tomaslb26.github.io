@@ -30,6 +30,17 @@
   left: 400px;
 }
 
+#selectStat{
+  border: 0;
+  border-radius: .7rem;
+  position: absolute;
+  font-family: 'Fredoka One';
+  font-size: 70%;
+  width: 200px;
+  top: 40px;
+  left: 650px;
+}
+
 #selectThirdItem{
   border: 0;
   border-radius: .7rem;
@@ -123,6 +134,37 @@ text {
   font-weight: bold;
   font-size: 10px
 }
+
+.XAxis .tick text{
+  font-family: 'Fredoka One';		
+  fill: rgba(255, 255, 255, 0);
+  font-weight: bold;
+  font-size: 115%;
+}
+
+.YAxis .tick text{
+  font-family: 'Fredoka One';		
+  fill: rgb(255, 255, 255);
+  font-weight: bold;
+  font-size: 110%;
+}
+
+.YAxis line{
+  stroke: rgb(255, 255, 255);
+}
+
+.XAxis line{
+  stroke: rgba(255, 255, 255, 0);
+}
+
+.XAxis path{
+  stroke: rgb(255, 255, 255);
+  }
+
+.YAxis path{
+  stroke: rgb(255, 255, 255);
+  stroke-width: 0.5%;
+  }
 
 
 div.tooltip {	
