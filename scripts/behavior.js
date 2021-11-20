@@ -1,4 +1,5 @@
 var dataset;
+var dataset2;
 var selectedPlayer;
 var selectedFirstItem = "deepslate";
 var selectedSecondItem = "cobblestone";
@@ -7,6 +8,7 @@ var selectedFourthItem = "sandstone";
 var selectedFifthItem = "diamond_ore";
 var allBlocks;
 var allBlocksConverted;
+var selectedStat = "mob_kills"
 var selectedPlayer = "NevQ"
 var update = false;
 
@@ -23,6 +25,11 @@ function init() {
       .catch((error) => {
         //console.log(error);
     });
+    d3.csv("data/custom_stats.csv")
+    .then((data) => {
+      dataset2 = data
+      BarChart()
+    })
 
   }
 
@@ -68,7 +75,6 @@ function process(){
   new_data = [{name: selectedFirstItem, "value": Number(data[0][selectedFirstItem])},
               {name: selectedSecondItem, "value": Number(data[0][selectedSecondItem])},{name: selectedThirdItem, "value": Number(data[0][selectedThirdItem])},
               {name: selectedFourthItem, "value": Number(data[0][selectedFourthItem])},{name: selectedFifthItem, "value": Number(data[0][selectedFifthItem])}]
-  console.log(new_data)
   return new_data
   
 }
@@ -113,7 +119,6 @@ function createSelects(){
   allBlocksConverted = [...array]
 
   first = allBlocks.indexOf(selectedFirstItem)
-  console.log(allBlocks)
   d3.select("#selectFirstItem")
   .selectAll('myOptions')
   .data(array)
@@ -285,7 +290,7 @@ function PieChart(){
     div.transition()		
     .duration(200)		
     .style("opacity", 1);		
-    div.html("Blocks Mined: " + d.data.value + "<br/>" );
+    div.html(allBlocksConverted[allBlocks.indexOf(d.data.name)] + " Mined: " + d.data.value + "<br/>" );
   }
 
   function handleMouseLeave(event,d){
@@ -304,4 +309,81 @@ function PieChart(){
   }
 
 
+}
+
+function BarChart(){
+  var new_data = dataset2.map(function(d) {
+    return {
+      username: String(d.username),
+      selectedStat: Number(d[selectedStat])
+    }
+  });
+  new_data.sort(function(a, b){
+    var keyA = a.selectedStat,
+        keyB = b.selectedStat;
+    // Compare the 2 dates
+    if(keyA < keyB) return 1;
+    if(keyA > keyB) return -1;
+    return 0;
+  })
+  new_data = new_data.slice(0,10)
+
+  var margin = {top: 20, right: 50, bottom: 20, left: 70},
+  width = 650,
+  height = 350;
+
+  x = d3.scaleBand()
+  .domain(new_data.map(d => d.username))
+  .rangeRound([margin.left, width - margin.right])
+  .padding(0.1)
+
+  y = d3.scaleLinear()
+  .domain([0, d3.max(new_data, (d) => d.selectedStat)])
+  .rangeRound([height - margin.bottom, margin.top])
+
+  xAxis = (g) => g
+  .attr("transform", `translate(0,${height - margin.bottom})`)
+  .call(d3
+      .axisBottom(x)
+      .tickFormat(function(x){
+        if(x.length>11){
+          return x.slice(0,4)
+        }
+        return x
+      })
+      .tickSizeOuter(0))
+
+  yAxis = (g) => g
+  .attr("transform", `translate(${margin.left},0)`)
+  .call(d3.axisLeft(y).tickFormat((y) => y/1000 + "k").tickSizeOuter(0)).append("text")
+  .attr("class", "y label")
+  .attr("text-anchor", "end")
+  .attr("y", -60)
+  .attr("dy", ".75em")
+  .attr("transform", "rotate(-90)")
+  .text(selectedStat)
+  .style("font-size", "14px")
+  .style("fill","#E03E33")
+
+  const svg = d3
+  .select("div#barChart")
+  .append("svg")
+  .attr("width", width)
+  .attr("height", height);
+
+  svg.append("g").attr("class","XAxis").call(xAxis);
+  svg.append("g").attr("class","YAxis").call(yAxis);
+
+  svg.append("g")
+  .attr("fill", "#E03E33")
+  .attr("fill-opacity", 0.8)
+  .selectAll("rect")
+  .data(new_data)
+  .join("rect")
+  .attr("x", d => x(d.username))
+  .attr("y", d => y(d.selectedStat))
+  .attr("height", d => y(0) - y(d.selectedStat))
+  .transition()
+  .duration(800)
+  .attr("width", x.bandwidth());
 }
