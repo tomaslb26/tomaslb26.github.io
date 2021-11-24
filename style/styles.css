@@ -58,7 +58,24 @@
   line-height: 50px;
 }
 
-
+.boxPicked{
+  position: absolute;
+  top: 15px;
+  left: 470px;
+  width: 220px;
+  height: 70px;
+  border: 0.5px solid rgb(255, 255, 255);
+  border-radius: 25px;
+  background-color: #213F4E;
+  margin: 20px;
+  font-family: 'Fredoka One';
+  color: rgb(255, 255, 255);
+  font-weight: bold;
+  font-size: 125%;
+  text-shadow: 2px 2px 1px rgb(0, 0, 0);
+  text-align: center;
+  line-height: 50px;
+}
 
 #content {
   position: absolute;
@@ -77,6 +94,18 @@
   font-family: 'Fredoka One';
   top: 72px;
   left: 305px;
+  color: rgb(255, 255, 255);
+  font-weight: bold;
+  font-size: 125%;
+  text-shadow: 2px 2px 1px rgb(0, 0, 0);
+}
+
+
+#content2 {
+  position: absolute;
+  font-family: 'Fredoka One';
+  top: 72px;
+  left: 542px;
   color: rgb(255, 255, 255);
   font-weight: bold;
   font-size: 125%;
@@ -135,10 +164,10 @@
   border-radius: .7rem;
   position: absolute;
   font-family: 'Fredoka One';
-  font-size: 80%;
+  font-size: 90%;
   width: 200px;
-  height: 20px;
-  top: 55px;
+  height: 30px;
+  top: 50px;
   left: 1050px;
 }
 

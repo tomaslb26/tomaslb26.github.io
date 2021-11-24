@@ -1,6 +1,7 @@
 var dataset;
 var dataset2;
 var dataset3;
+var dataset4;
 var selectedPlayer;
 var selectedFirstItem = "deepslate";
 var allBlocks;
@@ -34,9 +35,26 @@ function init() {
       dataset3 = data
       getCrafted()
     })
-
+    d3.csv("data/picked_up_blocks.csv")
+    .then((data) => {
+      dataset4 = data
+      getPicked()
+    })
   }
 
+  
+function getPicked(){
+    sum = 0
+    i = 0
+    console.log(dataset4.length)
+    for(i<0; i< dataset4.length; i++){
+      if(dataset4[i][selectedFirstItem] == null){
+        continue
+      }
+      sum += Number(dataset4[i][selectedFirstItem])
+    }
+    content2.innerHTML = sum
+  }
 
 function getCrafted(){
   sum = 0
@@ -183,6 +201,7 @@ function createSelects(){
     selectedFirstItem = allBlocks[allBlocksConverted.indexOf(selectedFirstItem)]
     getContent()
     getCrafted()
+    getPicked()
   })
   d3.select("#selectFirstItem").property("value",array[first])
 
