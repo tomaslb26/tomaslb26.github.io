@@ -1,11 +1,8 @@
 var dataset;
 var dataset2;
+var dataset3;
 var selectedPlayer;
 var selectedFirstItem = "deepslate";
-var selectedSecondItem = "cobblestone";
-var selectedThirdItem = "sand";
-var selectedFourthItem = "sandstone";
-var selectedFifthItem = "diamond_ore";
 var allBlocks;
 var allBlocksConverted;
 var allCustomStats;
@@ -18,11 +15,8 @@ function init() {
     d3.csv("data/blocks_broken.csv")
       .then((data) => {
         dataset = data
-        selectPlayer()
+        getContent()
         createSelects()
-        createCircles()
-        PieChart()
-        update = true
       })
       .catch((error) => {
         //console.log(error);
@@ -33,9 +27,29 @@ function init() {
       getStats()
       createSelectStat()
       BarChart()
+      update = true
+    })
+    d3.csv("data/blocks_crafted.csv")
+    .then((data) => {
+      dataset3 = data
+      getCrafted()
     })
 
   }
+
+
+function getCrafted(){
+  sum = 0
+  i = 0
+  console.log(dataset3.length)
+  for(i<0; i< dataset3.length; i++){
+    if(dataset3[i][selectedFirstItem] == null){
+      continue
+    }
+    sum += Number(dataset3[i][selectedFirstItem])
+  }
+  content1.innerHTML = sum
+}
 
 function getStats(){
   data = dataset2.filter(function(d){
@@ -55,6 +69,16 @@ function getStats(){
     array[i] = str.replace(/_/g, ' ')
   }
   allCustomStatsConverted = [...array]
+}
+
+function getContent(){
+  sum = 0
+  i = 0
+  console.log(dataset.length)
+  for(i<0; i< dataset.length; i++){
+    sum += Number(dataset[i][selectedFirstItem])
+  }
+  content.innerHTML = sum
 }
 
 function createCircles(){
@@ -87,20 +111,6 @@ function createCircles(){
   circle5
   .append("circle").attr("cx", 50).attr("cy", 9).attr("r", 7)
   .style("fill", '#fa7f72').style("stroke", "white").style("stroke-width", 1.5);
-}
-
-function process(){
-  data = dataset.filter(function(d){
-    if(d.username==selectedPlayer){
-      return d;
-    }
-  })
-
-  new_data = [{name: selectedFirstItem, "value": Number(data[0][selectedFirstItem])},
-              {name: selectedSecondItem, "value": Number(data[0][selectedSecondItem])},{name: selectedThirdItem, "value": Number(data[0][selectedThirdItem])},
-              {name: selectedFourthItem, "value": Number(data[0][selectedFourthItem])},{name: selectedFifthItem, "value": Number(data[0][selectedFifthItem])}]
-  return new_data
-  
 }
 
 function selectPlayer(){
@@ -143,11 +153,8 @@ function createSelectStat(){
 }
 
 function createSelects(){
-  data = dataset.filter(function(d){
-    if(d.username==selectedPlayer){
-      return d;
-    }
-  })
+  data = dataset
+
   array = Object.keys(data[0])
   array.shift()
   array = array.map((i) => String(i)).sort()
@@ -174,81 +181,11 @@ function createSelects(){
     // recover the option that has been chosen
     selectedFirstItem = d3.select(this).property("value")
     selectedFirstItem = allBlocks[allBlocksConverted.indexOf(selectedFirstItem)]
-    PieChart()
+    getContent()
+    getCrafted()
   })
   d3.select("#selectFirstItem").property("value",array[first])
 
-
-  
-  first = allBlocks.indexOf(selectedSecondItem)
-  d3.select("#selectSecondItem")
-  .selectAll('myOptions')
-  .data(array)
-  .enter()
-  .append('option')
-  .text(function (d) { return d; }) // text showed in the menu
-  .attr("value", function (d) { return d; }) // corresponding value returned by the button
-
-  d3.select("#selectSecondItem").on("change", function(d) {
-    // recover the option that has been chosen
-    selectedSecondItem = d3.select(this).property("value")
-    selectedSecondItem = allBlocks[allBlocksConverted.indexOf(selectedSecondItem)]
-    PieChart()
-  })
-  d3.select("#selectSecondItem").property("value",array[first])
-
-
-  first = allBlocks.indexOf(selectedThirdItem)
-  d3.select("#selectThirdItem")
-  .selectAll('myOptions')
-  .data(array)
-  .enter()
-  .append('option')
-  .text(function (d) { return d; }) // text showed in the menu
-  .attr("value", function (d) { return d; }) // corresponding value returned by the button
-
-  d3.select("#selectThirdItem").on("change", function(d) {
-    // recover the option that has been chosen
-    selectedThirdItem = d3.select(this).property("value")
-    selectedThirdItem = allBlocks[allBlocksConverted.indexOf(selectedThirdItem)]
-    PieChart()
-  })
-  d3.select("#selectThirdItem").property("value",array[first])
-
-
-  first = allBlocks.indexOf(selectedFourthItem)
-  d3.select("#selectFourthItem")
-  .selectAll('myOptions')
-  .data(array)
-  .enter()
-  .append('option')
-  .text(function (d) { return d; }) // text showed in the menu
-  .attr("value", function (d) { return d; }) // corresponding value returned by the button
-
-  d3.select("#selectFourthItem").on("change", function(d) {
-    // recover the option that has been chosen
-    selectedFourthItem = d3.select(this).property("value")
-    selectedFourthItem = allBlocks[allBlocksConverted.indexOf(selectedFourthItem)]
-    PieChart()
-  })
-  d3.select("#selectFourthItem").property("value",array[first])
-
-  first = allBlocks.indexOf(selectedFifthItem)
-  d3.select("#selectFifthItem")
-  .selectAll('myOptions')
-  .data(array)
-  .enter()
-  .append('option')
-  .text(function (d) { return d; }) // text showed in the menu
-  .attr("value", function (d) { return d; }) // corresponding value returned by the button
-
-  d3.select("#selectFifthItem").on("change", function(d) {
-    // recover the option that has been chosen
-    selectedFifthItem = d3.select(this).property("value")
-    selectedFifthItem = allBlocks[allBlocksConverted.indexOf(selectedFifthItem)]
-    PieChart()
-  })
-  d3.select("#selectFifthItem").property("value",array[first])
 }
 
 
@@ -375,7 +312,7 @@ function BarChart(){
   })
   new_data = new_data.slice(0,10)
 
-  console.log(new_data)
+  //console.log(new_data)
 
   var margin = {top: 20, right: 50, bottom: 20, left: 70},
   width = 650,
@@ -486,6 +423,7 @@ function BarChart(){
   .attr("y", function(d,i){
     new_y = y(d.selectedStat)-5 
     return new_y})
-  .text(function(d){ return d.username})
+  .text(function(d){ 
+    return d.username.replace(/_/g, '')})
 
 }

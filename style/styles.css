@@ -8,15 +8,115 @@
     left: 65px;
   }
 
+.boxLineChart {
+  position: absolute;
+  top: 65px;
+  right: -10px;
+  width: 640px;
+  height: 370px;
+  border: 0.5px solid rgb(255, 255, 255);
+  border-radius: 25px;
+  background-color: #213F4E;
+  margin: 20px;
+}
+
+.boxMined{
+  position: absolute;
+  top: 15px;
+  left: 10px;
+  width: 220px;
+  height: 70px;
+  border: 0.5px solid rgb(255, 255, 255);
+  border-radius: 25px;
+  background-color: #213F4E;
+  margin: 20px;
+  font-family: 'Fredoka One';
+  color: rgb(255, 255, 255);
+  font-weight: bold;
+  font-size: 125%;
+  text-shadow: 2px 2px 1px rgb(0, 0, 0);
+  text-align: center;
+  line-height: 50px;
+}
+
+.boxCrafted{
+  position: absolute;
+  top: 15px;
+  left: 240px;
+  width: 220px;
+  height: 70px;
+  border: 0.5px solid rgb(255, 255, 255);
+  border-radius: 25px;
+  background-color: #213F4E;
+  margin: 20px;
+  font-family: 'Fredoka One';
+  color: rgb(255, 255, 255);
+  font-weight: bold;
+  font-size: 125%;
+  text-shadow: 2px 2px 1px rgb(0, 0, 0);
+  text-align: center;
+  line-height: 50px;
+}
+
+
+
+#content {
+  position: absolute;
+  font-family: 'Fredoka One';
+  top: 72px;
+  left: 82px;
+  color: rgb(255, 255, 255);
+  font-weight: bold;
+  font-size: 125%;
+  text-shadow: 2px 2px 1px rgb(0, 0, 0);
+}
+
+
+#content1 {
+  position: absolute;
+  font-family: 'Fredoka One';
+  top: 72px;
+  left: 305px;
+  color: rgb(255, 255, 255);
+  font-weight: bold;
+  font-size: 125%;
+  text-shadow: 2px 2px 1px rgb(0, 0, 0);
+}
+
+.title2 {
+  position: absolute;
+  font-family: 'Fredoka One';
+  top: 32px;
+  left: 65px;
+  color: rgb(255, 255, 255);
+  font-weight: bold;
+  font-size: 125%;
+  text-shadow: 2px 2px 1px rgb(0, 0, 0);
+}
+
+.title4 {
+  position: absolute;
+  font-family: 'Fredoka One';
+  top: 5px;
+  left: 55px;
+  color: rgb(255, 255, 255);
+  font-weight: bold;
+  font-size: 125%;
+  text-shadow: 2px 2px 1px rgb(0, 0, 0);
+}
+
+
 #selectFirstItem{
   border: 0;
   border-radius: .7rem;
   position: absolute;
   font-family: 'Fredoka One';
-  font-size: 70%;
-  width: 100px;
-  top: 120px;
-  left: 400px;
+  font-size: 90%;
+  width: 200px;
+  height: 30px;
+  top: 2px;
+  border: 2px solid rgb(0, 0, 0);
+  left: 200px;
 }
 
 #selectSecondItem{
@@ -31,14 +131,26 @@
 }
 
 #selectStat{
-  border: 0;
+  border: 2px solid rgb(0, 0, 0);
   border-radius: .7rem;
   position: absolute;
   font-family: 'Fredoka One';
-  font-size: 70%;
+  font-size: 80%;
   width: 200px;
-  top: 40px;
-  left: 650px;
+  height: 20px;
+  top: 55px;
+  left: 1050px;
+}
+
+.title3 {
+  position: absolute;
+  font-family: 'Fredoka One';
+  top: 52px;
+  left: 930px;
+  color: rgb(255, 255, 255);
+  font-weight: bold;
+  font-size: 125%;
+  text-shadow: 2px 2px 1px rgb(0, 0, 0);
 }
 
 #selectThirdItem{
@@ -105,17 +217,6 @@
 }
 
 
-.title2 {
-  position: absolute;
-  font-family: 'Fredoka One';
-  top: 2px;
-  left: 65px;
-  color: rgb(255, 255, 255);
-  font-weight: bold;
-  font-size: 125%;
-  text-shadow: 2px 2px 1px rgb(0, 0, 0);
-}
-
 #pieChart{
   position: absolute;
   top: 80px;
@@ -124,8 +225,8 @@
 
 #barChart{
   position: absolute;
-  top: 80px;
-  left: 600px;
+  top: 100px;
+  left: 900px;
 }
 
 text {
