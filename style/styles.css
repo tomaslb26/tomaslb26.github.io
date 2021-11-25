@@ -1,3 +1,6 @@
+body {
+  overflow: hidden; /* Hide scrollbars */
+}
 #selectPlayer{
     border: 0;
     border-radius: .7rem;
