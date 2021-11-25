@@ -2,9 +2,11 @@ var dataset;
 var dataset2;
 var dataset3;
 var dataset4;
+var dataset5;
 var selectedPlayer;
 var selectedFirstItem = "stone";
 var allBlocks;
+var selectedMob = "zombie"
 var allBlocksConverted;
 var allCustomStats;
 var allCustomStatsConverted;
@@ -21,7 +23,7 @@ function init() {
         createSelects()
       })
       .catch((error) => {
-        //console.log(error);
+        ////console.log(error);
     });
     d3.csv("data/custom_stats.csv")
     .then((data) => {
@@ -42,7 +44,39 @@ function init() {
       dataset4 = data
       getPicked()
     })
+    d3.csv("data/killed.csv")
+    .then((data) => {
+      dataset5 = data
+      beeSwarm()
+    })
   }
+
+function getHierarchyKilled(){
+  new_data = dataset5.map(function(d) {
+    return {
+      id: String(d.username),
+      value: Number(d[selectedMob])
+    }
+  });
+
+  new_data.sort(function(a, b){
+    var keyA = a.value,
+        keyB = b.value;
+    if(keyA < keyB) return 1;
+    if(keyA > keyB) return -1;
+    return 0;
+  })
+  new_data = new_data.slice(0,30)
+  //new_data.push({id:"root", value:""})
+
+  return new_data
+}
+
+function beeSwarm(){
+  data = getHierarchyKilled()
+  console.log(data)
+
+}
 
 function getHierarchy(){
   new_data = dataset.map(function(d) {
@@ -61,7 +95,7 @@ function getHierarchy(){
   })
   //new_data = new_data.slice(0,30)
 
-  console.log(new_data)
+  //console.log(new_data)
   return new_data
 }
 
@@ -82,7 +116,7 @@ function getHierarchy2(){
   })
   //new_data = new_data.slice(0,30)
 
-  console.log(new_data)
+  //console.log(new_data)
   return new_data
 }
 
@@ -128,6 +162,31 @@ function bubbleChart2(){
     .style("opacity", 0);
   }
 
+  var defs = svg.append("defs");
+
+var filter = defs.append("filter")
+      .attr("id", "glow")
+      .attr("height", "150%")
+      .attr("width", "200%");
+
+  filter.append("feGaussianBlur")
+      .attr("in", "SourceAlpha")
+      .attr("stdDeviation", 2.5)
+      .attr("result", "blur");
+
+  filter.append("feOffset")
+      .attr("in", "blur")
+      .attr("dx", 2)
+      .attr("dy", 2)
+      .attr("result", "offsetBlur");
+
+  var feMerge = filter.append("feMerge");
+
+  feMerge.append("feMergeNode")
+      .attr("in", "offsetBlur");
+  feMerge.append("feMergeNode")
+      .attr("in", "SourceGraphic");
+
   var node = svg.append("g")
   .selectAll("circle")
   .data(data)
@@ -137,9 +196,10 @@ function bubbleChart2(){
     .attr("cx", width / 2)
     .attr("cy", height / 2)
     .style("fill", calculateFill)
+    .style("filter", "url(#glow)")
     .style("fill-opacity", 0.8)
     .attr("stroke", "white")
-    .style("stroke-width", 1)
+    .style("stroke-width", 0.3)
     .on("mouseover", mouseover) // What to do when hovered
     .on("mouseleave", mouseleave)
     .call(d3.drag() // call specific function when circle is dragged
@@ -212,7 +272,7 @@ function bubbleChart(){
   .style("opacity", 0);
   // Three function that change the tooltip when user hover / move / leave a cell
   const mouseover = function(event, d) {
-    console.log(d.username)
+    //console.log(d.username)
     value = 0;
     for(i=0;i<dataset3.length;i++){
       if(dataset3[i].username == d.username){
@@ -233,6 +293,32 @@ function bubbleChart(){
     .style("opacity", 0);
   }
 
+//Filter for the outside glow
+var defs = svg.append("defs");
+
+var filter = defs.append("filter")
+      .attr("id", "glow")
+      .attr("height", "150%")
+      .attr("width", "200%");
+
+  filter.append("feGaussianBlur")
+      .attr("in", "SourceAlpha")
+      .attr("stdDeviation", 2.5)
+      .attr("result", "blur");
+
+  filter.append("feOffset")
+      .attr("in", "blur")
+      .attr("dx", 2)
+      .attr("dy", 2)
+      .attr("result", "offsetBlur");
+
+  var feMerge = filter.append("feMerge");
+
+  feMerge.append("feMergeNode")
+      .attr("in", "offsetBlur");
+  feMerge.append("feMergeNode")
+      .attr("in", "SourceGraphic");
+
   var node = svg.append("g")
   .selectAll("circle")
   .data(data)
@@ -242,9 +328,10 @@ function bubbleChart(){
     .attr("cx", width / 2)
     .attr("cy", height / 2)
     .style("fill", calculateFill)
+    .style("filter", "url(#glow)")
     .style("fill-opacity", 0.8)
     .attr("stroke", "white")
-    .style("stroke-width", 1)
+    .style("stroke-width", 0.3)
     .on("mouseover", mouseover) // What to do when hovered
     .on("mouseleave", mouseleave)
     .call(d3.drag() // call specific function when circle is dragged
@@ -298,7 +385,7 @@ function bubbleChart(){
 function getPicked(){
     sum = 0
     i = 0
-    console.log(dataset4.length)
+    //console.log(dataset4.length)
     for(i<0; i< dataset4.length; i++){
       if(dataset4[i][selectedFirstItem] == null){
         continue
@@ -311,7 +398,7 @@ function getPicked(){
 function getCrafted(){
   sum = 0
   i = 0
-  console.log(dataset3.length)
+  //console.log(dataset3.length)
   for(i<0; i< dataset3.length; i++){
     if(dataset3[i][selectedFirstItem] == null){
       continue
@@ -344,7 +431,7 @@ function getStats(){
 function getContent(){
   sum = 0
   i = 0
-  console.log(dataset.length)
+  //console.log(dataset.length)
   for(i<0; i< dataset.length; i++){
     sum += Number(dataset[i][selectedFirstItem])
   }
@@ -585,7 +672,7 @@ function BarChart(){
   })
   new_data = new_data.slice(0,10)
 
-  //console.log(new_data)
+  ////console.log(new_data)
 
   var margin = {top: 20, right: 50, bottom: 20, left: 70},
   width = 650,
