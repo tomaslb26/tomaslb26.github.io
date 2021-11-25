@@ -11,6 +11,9 @@ body {
     left: 65px;
   }
 
+
+
+
 .title5 {
   position: absolute;
   font-family: 'Fredoka One';
@@ -35,10 +38,10 @@ body {
 
 .boxLineChart {
   position: absolute;
-  top: 65px;
-  right: 19%;
-  width: 640px;
-  height: 370px;
+  top: 5%;
+  right: 8%;
+  width: 45%;
+  height: 400px;
   border: 0.5px solid rgb(255, 255, 255);
   border-radius: 25px;
   background-color: #213F4E;
@@ -51,6 +54,30 @@ body {
   left: 0%;
   width: 840px;
   height: 370px;
+  border: 0.5px solid rgb(255, 255, 255);
+  border-radius: 25px;
+  background-color: #213F4E;
+  margin: 20px;
+}
+
+.boxBeeSwarm {
+  position: absolute;
+  top: 60%;
+  left: 0%;
+  width: 840px;
+  height: 35%;
+  border: 0.5px solid rgb(255, 255, 255);
+  border-radius: 25px;
+  background-color: #213F4E;
+  margin: 20px;
+}
+
+.boxBeeSwarm2 {
+  position: absolute;
+  top: 60%;
+  left: 45%;
+  width: 840px;
+  height: 35%;
   border: 0.5px solid rgb(255, 255, 255);
   border-radius: 25px;
   background-color: #213F4E;
@@ -205,15 +232,48 @@ body {
   font-size: 90%;
   width: 200px;
   height: 30px;
-  top: 50px;
+  top: 2%;
   left: 1050px;
 }
 
 .title3 {
   position: absolute;
   font-family: 'Fredoka One';
-  top: 52px;
+  top: 2.5%;
   left: 930px;
+  color: rgb(255, 255, 255);
+  font-weight: bold;
+  font-size: 125%;
+  text-shadow: 2px 2px 1px rgb(0, 0, 0);
+}
+
+.title7 {
+  position: absolute;
+  font-family: 'Fredoka One';
+  top: 65%;
+  left: 21%;
+  color: rgb(255, 255, 255);
+  font-weight: bold;
+  font-size: 145%;
+  text-shadow: 2px 2px 1px rgb(0, 0, 0);
+}
+
+.title9 {
+  position: absolute;
+  font-family: 'Fredoka One';
+  top: 65%;
+  left: 65%;
+  color: rgb(255, 255, 255);
+  font-weight: bold;
+  font-size: 145%;
+  text-shadow: 2px 2px 1px rgb(0, 0, 0);
+}
+
+.title8 {
+  position: absolute;
+  font-family: 'Fredoka One';
+  top: 57.5%;
+  left: 13.3%;
   color: rgb(255, 255, 255);
   font-weight: bold;
   font-size: 125%;
@@ -292,8 +352,8 @@ body {
 
 #barChart{
   position: absolute;
-  top: 100px;
-  left: 900px;
+  top: 9%;
+  left: 47%;
 }
 
 #bubbleChart{
@@ -304,15 +364,34 @@ body {
 
 #bubbleChart2{
   position: absolute;
-  top: 5%;
+  top: 10%;
   left: 22%;
 }
 
 #beeSwarm{
   position: absolute;
-  top: 700px;
-  left: 420px;
+  top: 55%;
+  left: 2%;
 }
+
+#beeSwarm2{
+  position: absolute;
+  top: 55%;
+  left: 47%;
+}
+
+#selectMob{
+  border: 0;
+  border-radius: .7rem;
+  position: absolute;
+  font-family: 'Fredoka One';
+  font-size: 90%;
+  width: 200px;
+  height: 30px;
+  top: 57%;
+  border: 2px solid rgb(0, 0, 0);
+  left:   20%;
+} 
 
 text {
   font-family: 'Fredoka One', sans-serif;		
@@ -328,6 +407,22 @@ text {
   font-size: 115%;
 }
 
+.xAxis .tick text{
+  font-family: 'Fredoka One';		
+  fill: rgb(255, 255, 255);
+  font-weight: bold;
+  font-size: 145%;
+  text-shadow: 2px 2px 1px rgb(0, 0, 0);
+}
+
+.xAxis2 .tick text{
+  font-family: 'Fredoka One';		
+  fill: rgb(255, 255, 255);
+  font-weight: bold;
+  font-size: 145%;
+  text-shadow: 2px 2px 1px rgb(0, 0, 0);
+}
+
 .YAxis .tick text{
   font-family: 'Fredoka One';		
   fill: rgb(255, 255, 255);
@@ -341,6 +436,24 @@ text {
 
 .XAxis line{
   stroke: rgba(255, 255, 255, 0);
+}
+
+.xAxis line{
+  stroke: rgb(255, 255, 255);
+}
+
+.xAxis path{
+  stroke: rgb(255, 255, 255);
+  stroke-width: 0.5%;
+}
+
+.xAxis2 line{
+  stroke: rgb(255, 255, 255);
+}
+
+.xAxis2 path{
+  stroke: rgb(255, 255, 255);
+  stroke-width: 0.5%;
 }
 
 .XAxis path{
@@ -363,6 +476,21 @@ div.tooltip {
   text-shadow: 2px 2px 1px rgb(0, 0, 0);
   font-weight: bold;							
   font-size: 130%;	
+  background: #34657f00;	
+  color: #ffffff;
+  right: 10px;
+  border: 0px solid #ffffff;
+  border-radius: 3px;
+}
+
+div.tooltip1 {	
+  position: absolute;
+  width: 240px;					
+  height: 20px;
+  font-family: 'Fredoka One';	
+  text-shadow: 2px 2px 1px rgb(0, 0, 0);
+  font-weight: bold;							
+  font-size: 110%;	
   background: #34657f00;	
   color: #ffffff;
   right: 10px;

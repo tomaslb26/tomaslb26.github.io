@@ -3,6 +3,7 @@ var dataset2;
 var dataset3;
 var dataset4;
 var dataset5;
+var dataset6;
 var selectedPlayer;
 var selectedFirstItem = "stone";
 var allBlocks;
@@ -10,8 +11,10 @@ var selectedMob = "zombie"
 var allBlocksConverted;
 var allCustomStats;
 var allCustomStatsConverted;
+var allMobs;
+var allMobsConverted;
 var selectedStat = "mob_kills"
-var selectedPlayer = "NevQ"
+var selectedPlayer = "Ferrno"
 var update = false;
 
 function init() {
@@ -47,9 +50,197 @@ function init() {
     d3.csv("data/killed.csv")
     .then((data) => {
       dataset5 = data
+      getMobs()
       beeSwarm()
     })
+    d3.csv("data/killed_by.csv")
+    .then((data) => {
+      dataset6 = data
+      beeSwarm2()
+    })
   }
+
+function getMobs(){
+  data = dataset5.filter(function(d){
+    if(d.username==selectedPlayer){
+      return d;
+    }
+  })
+  array = Object.keys(data[0])
+  array.shift()
+  array.shift()
+  array = array.map((i) => String(i)).sort()
+  array.sort()
+  allMobs = [...array]
+  for(i=0;i<array.length;i++){
+    str = String(array[i])
+    str =  str.charAt(0).toUpperCase() + str.slice(1)
+    array[i] = str.replace(/_/g, ' ')
+  }
+  allMobsConverted = [...array]
+
+  d3.select("#selectMob")
+  .selectAll('myOptions')
+  .data(allMobsConverted)
+  .enter()
+  .append('option')
+  .text(function (d) { return d; }) // text showed in the menu
+  .attr("value", function (d) { return d; }) // corresponding value returned by the button
+  
+  d3.select("#selectMob").on("change", function(d) {
+      // recover the option that has been chosen
+      selectedMob = allMobs[allMobsConverted.indexOf(d3.select(this).property("value"))]
+      beeSwarm()
+      beeSwarm2()
+    })
+  d3.select("#selectMob").property("value",allMobsConverted[allMobs.indexOf(selectedMob)])
+}
+
+function getHierarchyKilled2(){
+  new_data = dataset6.map(function(d) {
+    return {
+      id: String(d.username),
+      value: Number(d[selectedMob])
+    }
+  });
+
+  new_data.sort(function(a, b){
+    var keyA = a.value,
+        keyB = b.value;
+    if(keyA < keyB) return 1;
+    if(keyA > keyB) return -1;
+    return 0;
+  })
+  new_data = new_data.slice(0,50)
+  //new_data.push({id:"root", value:""})
+
+  return new_data
+}
+
+function beeSwarm2(){
+  if(update==true) d3.select("div#beeSwarm2").select("svg").remove();
+  data = getHierarchyKilled2()
+  let height = 400;
+  let width = 800;
+  let margin = ({top: 0, right: 40, bottom: 34, left: 40});
+  let svg = d3.select("div#beeSwarm2")
+    .append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+  let xScale = d3.scaleLinear().domain([d3.min(data,(d) => d.value),d3.max(data,(d) => d.value)])
+      .range([margin.left, width - margin.right]);
+
+  svg.append("g")
+      .attr("class", "xAxis2")
+      .attr("transform", "translate(0," + (height - margin.bottom) + ")");
+
+  let tooltip = d3.select("body").append("div")
+    .attr("class", "tooltip1")
+    .style("opacity", 0);
+
+  xAxis = d3.axisBottom(xScale)
+  .tickSizeOuter(0);
+
+  d3.transition(svg).select(".xAxis2")
+  .transition()
+  .duration(1000)
+  .call(xAxis);
+
+  let simulation = d3.forceSimulation(data)
+  // Apply positioning force to push nodes towards desired position along X axis
+  .force("x", d3.forceX(function(d) {
+      // Mapping of values from total/perCapita column of dataset to range of SVG chart (<margin.left, margin.right>)
+      return xScale(d.value);  // This is the desired position
+  }).strength(2))  // Increase velocity
+  .force("y", d3.forceY((height / 2) - margin.bottom / 2))  // // Apply positioning force to push nodes towards center along Y axis
+  .force("collide", d3.forceCollide(9)) // Apply collision force with radius of 9 - keeps nodes centers 9 pixels apart
+  .stop();  // Stop simulation from starting automatically
+
+  for (let i = 0; i < data.length; ++i) {
+    simulation.tick(10);
+  }
+
+  var defs = svg.append("defs");
+
+  var filter = defs.append("filter")
+        .attr("id", "glow")
+        .attr("height", "150%")
+        .attr("width", "200%");
+
+  filter.append("feGaussianBlur")
+      .attr("in", "SourceAlpha")
+      .attr("stdDeviation", 2.5)
+      .attr("result", "blur");
+
+  filter.append("feOffset")
+      .attr("in", "blur")
+      .attr("dx", 2)
+      .attr("dy", 2)
+      .attr("result", "offsetBlur");
+
+  var feMerge = filter.append("feMerge");
+
+  feMerge.append("feMergeNode")
+      .attr("in", "offsetBlur");
+  feMerge.append("feMergeNode")
+      .attr("in", "SourceGraphic");
+
+  let countriesCircles = svg.selectAll(".countries")
+  .data(data, function(d) { return d.id });
+
+  countriesCircles.exit()
+    .transition()
+    .duration(1000)
+    .attr("cx", 0)
+    .attr("cy", 10)
+    .remove();
+
+  countriesCircles.enter()
+    .append("circle")
+    .attr("class", "countries")
+    .attr("cx", 0)
+    .attr("cy", 10)
+    .attr("r", 6)
+    .attr("fill", calculateFill)
+    .style("filter", "url(#glow)")
+    .attr("stroke", "white")
+    .on("mouseover",handleMouseOver)
+    .on("mouseleave",handleMouseLeave)
+    .style("stroke-width", 0.3)
+    .merge(countriesCircles)
+    .transition()
+    .duration(200)
+    .attr("cx", function(d) { return d.x; })
+    .attr("cy", function(d) { return d.y+50; });
+
+  function calculateFill(dataItem, i) {
+    new_data = getHierarchyKilled2()
+    var scale = d3
+        .scaleLinear()
+        .domain([d3.min(new_data, d => d.value), d3.max(new_data, d => d.value)])
+        .range([0, 1]);
+    return d3.interpolateViridis(scale(dataItem.value));
+
+  
+  }
+
+  function handleMouseOver(event,d){
+    var matrix = this.getScreenCTM()
+    .translate(+ this.getAttribute("cx"), + this.getAttribute("cy"));
+    tooltip.transition()		
+    .duration(200)		
+    .style("opacity", 1);		
+    tooltip.html( d.id + "<br/>" + "Died: " + d.value + "<br/>").style("left", (window.pageXOffset + matrix.e + 15) + "px")
+    .style("top", (window.pageYOffset + matrix.f - 30) + "px");
+  }
+
+  function handleMouseLeave(event, d) {
+    tooltip.transition()		
+    .duration(500)		
+    .style("opacity", 0);
+  }
+}
 
 function getHierarchyKilled(){
   new_data = dataset5.map(function(d) {
@@ -66,16 +257,135 @@ function getHierarchyKilled(){
     if(keyA > keyB) return -1;
     return 0;
   })
-  new_data = new_data.slice(0,30)
+  new_data = new_data.slice(0,50)
   //new_data.push({id:"root", value:""})
 
   return new_data
 }
 
 function beeSwarm(){
+  if(update==true) d3.select("div#beeSwarm").select("svg").remove();
   data = getHierarchyKilled()
-  console.log(data)
+  let height = 400;
+  let width = 800;
+  let margin = ({top: 0, right: 40, bottom: 34, left: 40});
+  let svg = d3.select("div#beeSwarm")
+    .append("svg")
+    .attr("width", width)
+    .attr("height", height);
 
+  let xScale = d3.scaleLinear().domain([d3.min(data,(d) => d.value),d3.max(data,(d) => d.value)])
+      .range([margin.left, width - margin.right]);
+
+  svg.append("g")
+      .attr("class", "xAxis")
+      .attr("transform", "translate(0," + (height - margin.bottom) + ")");
+
+  let tooltip = d3.select("body").append("div")
+    .attr("class", "tooltip1")
+    .style("opacity", 0);
+
+  xAxis = d3.axisBottom(xScale)
+  .tickSizeOuter(0);
+
+  d3.transition(svg).select(".xAxis")
+  .transition()
+  .duration(1000)
+  .call(xAxis);
+
+  let simulation = d3.forceSimulation(data)
+  // Apply positioning force to push nodes towards desired position along X axis
+  .force("x", d3.forceX(function(d) {
+      // Mapping of values from total/perCapita column of dataset to range of SVG chart (<margin.left, margin.right>)
+      return xScale(d.value);  // This is the desired position
+  }).strength(2))  // Increase velocity
+  .force("y", d3.forceY((height / 2) - margin.bottom / 2))  // // Apply positioning force to push nodes towards center along Y axis
+  .force("collide", d3.forceCollide(9)) // Apply collision force with radius of 9 - keeps nodes centers 9 pixels apart
+  .stop();  // Stop simulation from starting automatically
+
+  for (let i = 0; i < data.length; ++i) {
+    simulation.tick(10);
+  }
+
+  var defs = svg.append("defs");
+
+  var filter = defs.append("filter")
+        .attr("id", "glow")
+        .attr("height", "150%")
+        .attr("width", "200%");
+
+  filter.append("feGaussianBlur")
+      .attr("in", "SourceAlpha")
+      .attr("stdDeviation", 2.5)
+      .attr("result", "blur");
+
+  filter.append("feOffset")
+      .attr("in", "blur")
+      .attr("dx", 2)
+      .attr("dy", 2)
+      .attr("result", "offsetBlur");
+
+  var feMerge = filter.append("feMerge");
+
+  feMerge.append("feMergeNode")
+      .attr("in", "offsetBlur");
+  feMerge.append("feMergeNode")
+      .attr("in", "SourceGraphic");
+
+  let countriesCircles = svg.selectAll(".countries")
+  .data(data, function(d) { return d.id });
+
+  countriesCircles.exit()
+    .transition()
+    .duration(1000)
+    .attr("cx", 0)
+    .attr("cy", 10)
+    .remove();
+
+  countriesCircles.enter()
+    .append("circle")
+    .attr("class", "countries")
+    .attr("cx", 0)
+    .attr("cy", 10)
+    .attr("r", 6)
+    .attr("fill", calculateFill)
+    .style("filter", "url(#glow)")
+    .attr("stroke", "white")
+    .on("mouseover",handleMouseOver)
+    .on("mouseleave",handleMouseLeave)
+    .style("stroke-width", 0.3)
+    .merge(countriesCircles)
+    .transition()
+    .duration(200)
+    .attr("cx", function(d) { return d.x; })
+    .attr("cy", function(d) { return d.y+50; });
+
+  function calculateFill(dataItem, i) {
+    new_data = getHierarchyKilled()
+    var scale = d3
+        .scaleLinear()
+        .domain([d3.min(new_data, d => d.value), d3.max(new_data, d => d.value)])
+        .range([0, 1]);
+    return d3.interpolateViridis(scale(dataItem.value));
+
+  
+  }
+
+  function handleMouseOver(event,d){
+    var matrix = this.getScreenCTM()
+    .translate(+ this.getAttribute("cx"), + this.getAttribute("cy"));
+    tooltip.transition()		
+    .duration(200)		
+    .style("opacity", 1);		
+    tooltip.html( d.id + "<br/>" + "Killed: " + d.value + "<br/>").style("left", (window.pageXOffset + matrix.e + 15) + "px")
+    .style("top", (window.pageYOffset + matrix.f - 30) + "px");
+  }
+
+  function handleMouseLeave(event, d) {
+    tooltip.transition()		
+    .duration(500)		
+    .style("opacity", 0);
+  }
 }
 
 function getHierarchy(){
@@ -126,7 +436,7 @@ function bubbleChart2(){
   data = new_data.slice(0,50)
   // set the dimensions and margins of the graph
   const width = 460
-  const height = 560
+  const height = 460
 
   // append the svg object to the body of the page
   const svg = d3.select("div#bubbleChart2")
@@ -438,37 +748,7 @@ function getContent(){
   content.innerHTML = sum
 }
 
-function createCircles(){
-  const circle1 = d3.select("div#circle1").append("svg")
-  .attr("width", 150).attr("height", 18);
-  circle1
-  .append("circle").attr("cx", 50).attr("cy", 9).attr("r", 7)
-  .style("fill", "#ffd384").style("stroke", "white").style("stroke-width", 1.5);
 
-  const circle2 = d3.select("div#circle2").append("svg")
-  .attr("width", 150).attr("height", 18);
-  circle2
-  .append("circle").attr("cx", 50).attr("cy", 9).attr("r", 7)
-  .style("fill", '#94ebcd').style("stroke", "white").style("stroke-width", 1.5);
-
-  const circle3 = d3.select("div#circle3").append("svg")
-  .attr("width", 150).attr("height", 18);
-  circle3
-  .append("circle").attr("cx", 50).attr("cy", 9).attr("r", 7)
-  .style("fill", '#fbaccc').style("stroke", "white").style("stroke-width", 1.5);
-
-  const circle4 = d3.select("div#circle4").append("svg")
-  .attr("width", 150).attr("height", 18);
-  circle4
-  .append("circle").attr("cx", 50).attr("cy", 9).attr("r", 7)
-  .style("fill",'#d3e0ea').style("stroke", "white").style("stroke-width", 1.5);
-
-  const circle5 = d3.select("div#circle5").append("svg")
-  .attr("width", 150).attr("height", 18);
-  circle5
-  .append("circle").attr("cx", 50).attr("cy", 9).attr("r", 7)
-  .style("fill", '#fa7f72').style("stroke", "white").style("stroke-width", 1.5);
-}
 
 function selectPlayer(){
   usernames = dataset.map((d) => d.username)
@@ -675,8 +955,8 @@ function BarChart(){
   ////console.log(new_data)
 
   var margin = {top: 20, right: 50, bottom: 20, left: 70},
-  width = 650,
-  height = 350;
+  width = 850,
+  height = 370;
 
   x = d3.scaleBand()
   .domain(new_data.map(d => d.username))
