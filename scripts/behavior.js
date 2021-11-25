@@ -49,6 +49,7 @@ function init() {
     })
     d3.csv("data/killed.csv")
     .then((data) => {
+      console.log("fiehfieh")
       dataset5 = data
       getMobs()
       beeSwarm()
