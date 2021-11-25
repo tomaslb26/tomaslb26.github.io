@@ -3,7 +3,7 @@ var dataset2;
 var dataset3;
 var dataset4;
 var selectedPlayer;
-var selectedFirstItem = "deepslate";
+var selectedFirstItem = "stone";
 var allBlocks;
 var allBlocksConverted;
 var allCustomStats;
@@ -16,6 +16,7 @@ function init() {
     d3.csv("data/blocks_broken.csv")
       .then((data) => {
         dataset = data
+        bubbleChart()
         getContent()
         createSelects()
       })
@@ -34,6 +35,7 @@ function init() {
     .then((data) => {
       dataset3 = data
       getCrafted()
+      bubbleChart2()
     })
     d3.csv("data/picked_up_blocks.csv")
     .then((data) => {
@@ -42,6 +44,256 @@ function init() {
     })
   }
 
+function getHierarchy(){
+  new_data = dataset.map(function(d) {
+    return {
+      username: String(d.username),
+      value: Number(d[selectedFirstItem])
+    }
+  });
+
+  new_data.sort(function(a, b){
+    var keyA = a.value,
+        keyB = b.value;
+    if(keyA < keyB) return 1;
+    if(keyA > keyB) return -1;
+    return 0;
+  })
+  //new_data = new_data.slice(0,30)
+
+  console.log(new_data)
+  return new_data
+}
+
+function getHierarchy2(){
+  new_data = dataset3.map(function(d) {
+    return {
+      username: String(d.username),
+      value: Number(d[selectedFirstItem])
+    }
+  });
+
+  new_data.sort(function(a, b){
+    var keyA = a.value,
+        keyB = b.value;
+    if(keyA < keyB) return 1;
+    if(keyA > keyB) return -1;
+    return 0;
+  })
+  //new_data = new_data.slice(0,30)
+
+  console.log(new_data)
+  return new_data
+}
+
+function bubbleChart2(){
+  if(update==true) d3.select("div#bubbleChart2").select("svg").remove();
+  new_data = getHierarchy2()
+  data = new_data.slice(0,50)
+  // set the dimensions and margins of the graph
+  const width = 460
+  const height = 560
+
+  // append the svg object to the body of the page
+  const svg = d3.select("div#bubbleChart2")
+  .append("svg")
+    .attr("width", width)
+    .attr("height", height)
+
+  const size = d3.scaleLinear()
+  .domain([d3.min(new_data, d => d.value), d3.max(new_data, d => d.value)])
+  .range([7,40]) 
+
+  var div = d3.select("body").append("div")	
+  .attr("class", "tooltip")				
+  .style("opacity", 0);
+  // Three function that change the tooltip when user hover / move / leave a cell
+  const mouseover = function(event, d) {
+    value = 0
+    for(i=0;i<dataset.length;i++){
+      if(dataset[i].username == d.username){
+        value = Number(dataset[i][selectedFirstItem])
+        break
+      }
+    }
+    div.transition()		
+    .duration(200)		
+    .style("opacity", 1);		
+    div.html( d.username + "<br/>" + "Mined: " + value + "<br/>" + "Crafted: " + d.value + "<br/>" );
+  }
+
+  var mouseleave = function(event, d) {
+    div.transition()		
+    .duration(500)		
+    .style("opacity", 0);
+  }
+
+  var node = svg.append("g")
+  .selectAll("circle")
+  .data(data)
+  .join("circle")
+    .attr("class", "node")
+    .attr("r", d => size(d.value))
+    .attr("cx", width / 2)
+    .attr("cy", height / 2)
+    .style("fill", calculateFill)
+    .style("fill-opacity", 0.8)
+    .attr("stroke", "white")
+    .style("stroke-width", 1)
+    .on("mouseover", mouseover) // What to do when hovered
+    .on("mouseleave", mouseleave)
+    .call(d3.drag() // call specific function when circle is dragged
+         .on("start", dragstarted)
+         .on("drag", dragged)
+         .on("end", dragended));
+
+
+    // Features of the forces applied to the nodes:
+    const simulation = d3.forceSimulation()
+    .force("center", d3.forceCenter().x(width / 2).y(height / 2)) // Attraction to the center of the svg area
+    .force("charge", d3.forceManyBody().strength(.1)) // Nodes are attracted one each other of value is > 0
+    .force("collide", d3.forceCollide().strength(.2).radius(function(d){ return (size(d.value)+3) }).iterations(1)) // Force that avoids circle overlapping
+
+  simulation
+      .nodes(data)
+      .on("tick", function(d){
+        node
+            .attr("cx", d => d.x)
+            .attr("cy", d => d.y)
+      });
+
+  // What happens when a circle is dragged?
+  function dragstarted(event, d) {
+    if (!event.active) simulation.alphaTarget(.03).restart();
+    d.fx = d.x;
+    d.fy = d.y;
+  }
+  function dragged(event, d) {
+    d.fx = event.x;
+    d.fy = event.y;
+  }
+  function dragended(event, d) {
+    if (!event.active) simulation.alphaTarget(.03);
+    d.fx = null;
+    d.fy = null;
+  }
+
+  function calculateFill(dataItem, i) {
+    new_data = getHierarchy2()
+    var scale = d3
+        .scaleLinear()
+        .domain([d3.min(new_data, d => d.value), d3.max(new_data, d => d.value)])
+        .range([0, 1]);
+    return d3.interpolateViridis(scale(dataItem.value));
+  }
+
+}
+
+function bubbleChart(){
+  if(update==true) d3.select("div#bubbleChart").select("svg").remove();
+  new_data = getHierarchy()
+  data = new_data.slice(0, 50)
+  // set the dimensions and margins of the graph
+  const width = 460
+  const height = 560
+
+  // append the svg object to the body of the page
+  const svg = d3.select("div#bubbleChart")
+  .append("svg")
+    .attr("width", width)
+    .attr("height", height)
+
+  const size = d3.scaleLinear()
+  .domain([d3.min(new_data, d => d.value), d3.max(new_data, d => d.value)])
+  .range([7,40]) 
+
+  var div = d3.select("body").append("div")	
+  .attr("class", "tooltip")				
+  .style("opacity", 0);
+  // Three function that change the tooltip when user hover / move / leave a cell
+  const mouseover = function(event, d) {
+    console.log(d.username)
+    value = 0;
+    for(i=0;i<dataset3.length;i++){
+      if(dataset3[i].username == d.username){
+        value = Number(dataset3[i][selectedFirstItem])
+        break
+      }
+    }
+
+    div.transition()		
+    .duration(200)		
+    .style("opacity", 1);		
+    div.html( d.username + "<br/>" + "Mined: " + d.value + "<br/>" + "Crafted: " + value + "<br/>" );
+  }
+
+  var mouseleave = function(event, d) {
+    div.transition()		
+    .duration(500)		
+    .style("opacity", 0);
+  }
+
+  var node = svg.append("g")
+  .selectAll("circle")
+  .data(data)
+  .join("circle")
+    .attr("class", "node")
+    .attr("r", d => size(d.value))
+    .attr("cx", width / 2)
+    .attr("cy", height / 2)
+    .style("fill", calculateFill)
+    .style("fill-opacity", 0.8)
+    .attr("stroke", "white")
+    .style("stroke-width", 1)
+    .on("mouseover", mouseover) // What to do when hovered
+    .on("mouseleave", mouseleave)
+    .call(d3.drag() // call specific function when circle is dragged
+         .on("start", dragstarted)
+         .on("drag", dragged)
+         .on("end", dragended));
+
+
+    // Features of the forces applied to the nodes:
+    const simulation = d3.forceSimulation()
+    .force("center", d3.forceCenter().x(width / 2).y(height / 2)) // Attraction to the center of the svg area
+    .force("charge", d3.forceManyBody().strength(.1)) // Nodes are attracted one each other of value is > 0
+    .force("collide", d3.forceCollide().strength(.2).radius(function(d){ return (size(d.value)+3) }).iterations(1)) // Force that avoids circle overlapping
+
+  simulation
+      .nodes(data)
+      .on("tick", function(d){
+        node
+            .attr("cx", d => d.x)
+            .attr("cy", d => d.y)
+      });
+
+  // What happens when a circle is dragged?
+  function dragstarted(event, d) {
+    if (!event.active) simulation.alphaTarget(.03).restart();
+    d.fx = d.x;
+    d.fy = d.y;
+  }
+  function dragged(event, d) {
+    d.fx = event.x;
+    d.fy = event.y;
+  }
+  function dragended(event, d) {
+    if (!event.active) simulation.alphaTarget(.03);
+    d.fx = null;
+    d.fy = null;
+  }
+
+  
+  function calculateFill(dataItem, i) {
+    new_data = getHierarchy()
+    var scale = d3
+        .scaleLinear()
+        .domain([d3.min(new_data, d => d.value), d3.max(new_data, d => d.value)])
+        .range([0, 1]);
+    return d3.interpolateViridis(scale(dataItem.value));
+  }
+
+}
   
 function getPicked(){
     sum = 0
@@ -202,6 +454,8 @@ function createSelects(){
     getContent()
     getCrafted()
     getPicked()
+    bubbleChart()
+    bubbleChart2()
   })
   d3.select("#selectFirstItem").property("value",array[first])
 

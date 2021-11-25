@@ -8,11 +8,45 @@
     left: 65px;
   }
 
+.title5 {
+  position: absolute;
+  font-family: 'Fredoka One';
+  top: 135px;
+  left: 155px;
+  color: rgb(255, 255, 255);
+  font-weight: bold;
+  font-size: 145%;
+  text-shadow: 2px 2px 1px rgb(0, 0, 0);
+}
+
+.title6 {
+  position: absolute;
+  font-family: 'Fredoka One';
+  top: 135px;
+  left: 565px;
+  color: rgb(255, 255, 255);
+  font-weight: bold;
+  font-size: 145%;
+  text-shadow: 2px 2px 1px rgb(0, 0, 0);
+}
+
 .boxLineChart {
   position: absolute;
   top: 65px;
   right: -10px;
   width: 640px;
+  height: 370px;
+  border: 0.5px solid rgb(255, 255, 255);
+  border-radius: 25px;
+  background-color: #213F4E;
+  margin: 20px;
+}
+
+.boxBubbleChart {
+  position: absolute;
+  top: 105px;
+  right: 650px;
+  width: 840px;
   height: 370px;
   border: 0.5px solid rgb(255, 255, 255);
   border-radius: 25px;
@@ -122,6 +156,7 @@
   font-size: 125%;
   text-shadow: 2px 2px 1px rgb(0, 0, 0);
 }
+
 
 .title4 {
   position: absolute;
@@ -258,6 +293,18 @@
   left: 900px;
 }
 
+#bubbleChart{
+  position: absolute;
+  top: 40px;
+  left: 00px;
+}
+
+#bubbleChart2{
+  position: absolute;
+  top: 40px;
+  left: 420px;
+}
+
 text {
   font-family: 'Fredoka One', sans-serif;		
   fill: rgb(255, 255, 255);
@@ -299,15 +346,17 @@ text {
 
 div.tooltip {	
   position: absolute;
-  top: 395px;
-  left: 111px;
-  width: 140px;					
+  top: 405px;
+  left: 360px;
+  width: 240px;					
   height: 20px;
-  font-family: 'Roboto Condensed', sans-serif;								
-  font: 12px;		
-  background: #34657F;	
+  font-family: 'Fredoka One';	
+  text-shadow: 2px 2px 1px rgb(0, 0, 0);
+  font-weight: bold;							
+  font-size: 130%;	
+  background: #34657f00;	
   color: #ffffff;
   right: 10px;
-  border: 1px solid #34657F;
+  border: 0px solid #ffffff;
   border-radius: 3px;
 }
