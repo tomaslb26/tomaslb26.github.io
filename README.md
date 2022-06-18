@@ -1,3 +1,3 @@
 [Website](tomaslb26.github.io)
 
-[Screenshot](hexacomb.png)
+![Screenshot](hexacomb.png)
